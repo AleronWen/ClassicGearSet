@@ -46,13 +46,13 @@ function ClassicGearSet.PrintHelp()
     print("Usage:")
     print("/cgs - Show this message")
     print("/cgs help - Show this message")
-    print("/cgs load <gear name> - Load the gear set")
-    print("/cgs save <gear name> - Save the gear set")
+    print("/cgs load <gear name> - Load the gear set (the gear name may have spaces)")
+    print("/cgs save <gear name> - Save the gear set (the gear name may have spaces)")
     print("/cgs list - List the saved gear sets")
 end
 
 SlashCmdList['CLASSICGEARSET'] = function(msg)
-    local tbl = { strsplit(" ", msg) }
+    local tbl = { strsplit(" ", msg, 2) }
     local tblCount = ClassicGearSet.Tablelength(tbl)
 
     if tblCount == 0 then
