@@ -7,8 +7,8 @@ A World of Warcraft Classic addon to manage your character's gear.
 - [ ] Save a gear set from the character panel
 - [ ] Load a gear set from the character panel
   - [ ] check that a piece of equipment is missing and raise the issue to the player
-  - [ ] check that there is room in bags prior to unequip
-- [ ] Having SlashCmdList to load/save/list gears
+  - [x] check that there is room in bags prior to unequip
+- [x] Having SlashCmdList to load/save/list gears
   - for example ``/cgs load gearname`` to load the gear set named ``gearname```
 
 ## Roadmap
