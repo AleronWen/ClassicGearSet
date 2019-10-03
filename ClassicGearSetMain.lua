@@ -55,6 +55,13 @@ function ClassicGearSet.SaveGear(gearId)
     CGS_DataBase.Gears[gearId] = ClassicGearSet.ListCurrentGear()
 end
 
+function ClassicGearSet.DeleteGear(gearId)
+    if CGS_DataBase.Gears[gearId] ~= nil then
+        CGS_DataBase.Gears[gearId] = nil
+        CGS_DataBase.GearsCount = CGS_DataBase.GearsCount - 1
+    end    
+end
+
 -- Loading functions
 function ClassicGearSet.LoadGear(gearId)
     if CGS_DataBase.Gears[gearId] ~= nil then
@@ -94,6 +101,8 @@ SlashCmdList['CLASSICGEARSET'] = function(msg)
             ClassicGearSet.LoadGear(tbl[2])            
         elseif tblCount == 2 and tbl[1] == "save" then
             ClassicGearSet.SaveGear(tbl[2])            
+        elseif tblCount == 2 and tbl[1] == "delete" then
+            ClassicGearSet.DeleteGear(tbl[2])           
         else
             ClassicGearSet.PrintHelp()
         end
