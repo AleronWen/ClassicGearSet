@@ -1,0 +1,8 @@
+## Interface: 11302
+## Title: ClassicGearSet
+## Notes: Character's gears management
+## Author: Teuz
+## Version: 0.0.1
+## DefaultState: disabled
+
+ClassicGearSetMain.lua
