@@ -4,5 +4,6 @@
 ## Author: Teuz
 ## Version: 0.0.1
 ## DefaultState: disabled
+## SavedVariablesPerCharacter: CGS_DataBase
 
 ClassicGearSetMain.lua

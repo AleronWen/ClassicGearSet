@@ -1,6 +1,12 @@
 ClassicGearSet = {}
-ClassicGearSet.Gears = {}
-ClassicGearSet.GearsCount = 0
+
+CGS_DataBase = {}
+CGS_DataBase.Gears = {}
+CGS_DataBase.GearsCount = 0
+
+-- Constants
+INVENTORY_SLOT_NAME = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "AmmoSlot" }
+EMPTY_ITEM_SLOT = "EMPTY"
 
 -- Utility functions
 function ClassicGearSet.Tablelength(T)
@@ -9,31 +15,51 @@ function ClassicGearSet.Tablelength(T)
     return count
 end
 
+
+-- testing
+function ClassicGearSet.Test()
+end
+
 -- List function
 function ClassicGearSet.ListGears()
-    print("List of gears:", ClassicGearSet.GearsCount)
-    if ClassicGearSet.GearsCount > 0 then
-        for k,_ in pairs(ClassicGearSet.Gears) do
+    print("List of gears:", CGS_DataBase.GearsCount)
+    if CGS_DataBase.GearsCount > 0 then
+        for k,_ in pairs(CGS_DataBase.Gears) do
             print("-", k)
         end
     else
         print("No gear found")
     end
 end
+
 -- Saving functions
+function ClassicGearSet.ListCurrentGear()
+    local currentGear = {}
+    for i,v in ipairs(INVENTORY_SLOT_NAME) do
+        local slotID = GetInventorySlotInfo(v)
+        local itemLink = GetInventoryItemLink("player", slotID)
+        if itemLink == nil then 
+            currentGear[v] = EMPTY_ITEM_SLOT
+        else
+            currentGear[v], _ = GetItemInfo(itemLink)
+        end
+    end
+    return currentGear
+end
+
 function ClassicGearSet.SaveGear(gearId)
     print("Saving " .. gearId)
-    if ClassicGearSet.Gears[gearId] == nil then
-        ClassicGearSet.GearsCount = ClassicGearSet.GearsCount + 1
+    if CGS_DataBase.Gears[gearId] == nil then
+        CGS_DataBase.GearsCount = CGS_DataBase.GearsCount + 1
     end
-    ClassicGearSet.Gears[gearId] = {"A big axe", "A shield"}
+    CGS_DataBase.Gears[gearId] = ClassicGearSet.ListCurrentGear()
 end
 
 -- Loading functions
 function ClassicGearSet.LoadGear(gearId)
-    if ClassicGearSet.Gears[gearId] ~= nil then
+    if CGS_DataBase.Gears[gearId] ~= nil then
         print("Loading", gearId)
-        for _,v in pairs(ClassicGearSet.Gears[gearId]) do
+        for _,v in pairs(CGS_DataBase.Gears[gearId]) do
             print("Equiping ", v)
         end        
     else
@@ -61,7 +87,9 @@ SlashCmdList['CLASSICGEARSET'] = function(msg)
         if tbl[1] == "help" then
             ClassicGearSet.PrintHelp()
         elseif tbl[1] == "list" then
-            ClassicGearSet.ListGears()             
+            ClassicGearSet.ListGears() 
+        elseif tbl[1] == "test" then
+            ClassicGearSet.Test()             
         elseif tblCount == 2 and tbl[1] == "load" then
             ClassicGearSet.LoadGear(tbl[2])            
         elseif tblCount == 2 and tbl[1] == "save" then
