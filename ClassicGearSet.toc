@@ -2,7 +2,7 @@
 ## Title: ClassicGearSet
 ## Notes: Character's gears management
 ## Author: Teuz
-## Version: 0.0.1
+## Version: 1.0.0
 ## DefaultState: disabled
 ## SavedVariablesPerCharacter: CGS_DataBase
 
