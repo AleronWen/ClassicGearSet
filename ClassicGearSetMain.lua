@@ -46,8 +46,8 @@ function ClassicGearSet.PrintHelp()
     print("Usage:")
     print("/cgs - Show this message")
     print("/cgs help - Show this message")
-    print("/cgs load <gear name> - Load the gear set ")
-    print("/cgs save <gear name> - Save the gear set x")
+    print("/cgs load <gear name> - Load the gear set")
+    print("/cgs save <gear name> - Save the gear set")
     print("/cgs list - List the saved gear sets")
 end
 
