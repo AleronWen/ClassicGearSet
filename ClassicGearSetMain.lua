@@ -5,7 +5,7 @@ CGS_DataBase.Gears = {}
 CGS_DataBase.GearsCount = 0
 
 -- Constants
-INVENTORY_SLOT_NAME = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "AmmoSlot" }
+INVENTORY_SLOT_NAME = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot", "AmmoSlot" }
 EMPTY_ITEM_SLOT = "GCS_EMPTY_SLOT"
 
 -- Utility functions
@@ -91,43 +91,45 @@ end
 
 -- Load function
 function ClassicGearSet.LoadGear(gearId)
-    print("Loading gear set:", gearId)
-    if CGS_DataBase.Gears[gearId] ~= nil then
-        local currentGear = ClassicGearSet.ListCurrentGear()
+    if InCombatLockdown() == false then
+        print("Loading gear set:", gearId)
+        if CGS_DataBase.Gears[gearId] ~= nil then
+            local currentGear = ClassicGearSet.ListCurrentGear()
 
-        local freeSlots = ClassicGearSet.NumberOfFreeSlotInBags()
-        local requiredFreeSlots = ClassicGearSet.CountRequiredFreeBagSlots(currentGear, CGS_DataBase.Gears[gearId])
+            local freeSlots = ClassicGearSet.NumberOfFreeSlotInBags()
+            local requiredFreeSlots = ClassicGearSet.CountRequiredFreeBagSlots(currentGear, CGS_DataBase.Gears[gearId])
 
-        if requiredFreeSlots <= freeSlots then
-            for k,v in pairs(CGS_DataBase.Gears[gearId]) do
-                if v ~= EMPTY_ITEM_SLOT then                
-                    if (currentGear[k] ~= v) then    
-                        DEFAULT_CHAT_FRAME.editBox:SetText("/equip " .. v) ChatEdit_SendText(DEFAULT_CHAT_FRAME.editBox, 0)
-                    end
-                else
-                    C_Timer.After(0.3, function()
-                        PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBackpack();
+            if requiredFreeSlots <= freeSlots then
+                for k,v in pairs(CGS_DataBase.Gears[gearId]) do
+                    if v ~= EMPTY_ITEM_SLOT then                
+                        if (currentGear[k] ~= v) then    
+                            EquipItemByName(v)
+                        end
+                    else
                         C_Timer.After(0.3, function()
-                            PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBag(20);
+                            PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBackpack();
                             C_Timer.After(0.3, function()
-                                PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBag(21);
+                                PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBag(20);
                                 C_Timer.After(0.3, function()
-                                    PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBag(22);
+                                    PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBag(21);
                                     C_Timer.After(0.3, function()
-                                        PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBag(23);
-                                        return
+                                        PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBag(22);
+                                        C_Timer.After(0.3, function()
+                                            PickupInventoryItem(GetInventorySlotInfo(k)) PutItemInBag(23);
+                                            return
+                                        end)
                                     end)
                                 end)
                             end)
                         end)
-                    end)
+                    end
                 end
+            else
+                print(format("Not enough space in bags to equip selected gear (Required: %d, Free slots in bag: %d)", requiredFreeSlots, freeSlots))
             end
         else
-            print(format("Not enough space in bags to equip selected gear (Required: %d, Free slots in bag: %d)", requiredFreeSlots, freeSlots))
+            print(format("No gear set is named '%s'", gearId))
         end
-    else
-        print(format("No gear set is named '%s'", gearId))
     end
 end
 
