@@ -58,6 +58,7 @@ end
 function ClassicGearSet.Test()
 end
 
+
 -- List function
 function ClassicGearSet.ListGears()
     print("List of gears:", CGS_DataBase.GearsCount)
@@ -70,6 +71,7 @@ function ClassicGearSet.ListGears()
     end
 end
 
+
 -- Save function
 
 function ClassicGearSet.SaveGear(gearId)
@@ -78,29 +80,45 @@ function ClassicGearSet.SaveGear(gearId)
     end
     CGS_DataBase.Gears[gearId] = ClassicGearSet.ListCurrentGear()
 
+    SaveWeaponSwapMacro(gearId)
+
+    print(format("Gear set '%s' has been saved", gearId))
+end
+
+function SaveWeaponSwapMacro(gearId)
+    local mainhand = CGS_DataBase.Gears[gearId]["MainHandSlot"]        
+    local offhand = CGS_DataBase.Gears[gearId]["SecondaryHandSlot"]
     local macroName = gearId .. "_cgs"
+    
     if CGS_DataBase.EnableMacro == true then
         local macroIndex = GetMacroIndexByName(macroName)
-        local macroHeader = "#showtooltip\n"
-        local macro_text = format("/equipslot 16 %s\n/equipslot 17 %s", CGS_DataBase.Gears[gearId]["MainHandSlot"], CGS_DataBase.Gears[gearId]["SecondaryHandSlot"])
+        local macroHeader = "#showtooltip"
+        local macro_text = ""
+        
+        if mainhand ~= EMPTY_ITEM_SLOT then
+            macro_text = macro_text .. format("\n/equipslot 16 %s", mainhand)
+        end
+        if offhand ~= EMPTY_ITEM_SLOT then
+            macro_text = macro_text .. format("\n/equipslot 17 %s", offhand)
+        end
+
         if macroIndex == 0 then
             -- create macro
             CreateMacro(macroName, "INV_MISC_QUESTIONMARK", macroHeader .. macro_text, 1);
         else
             -- update macro
             local _, iconTexture, body, isLocal = GetMacroInfo(macroName);
-            local tmpIdx, _ = strfind(body, "/equip")
+            local tmpIdx, _ = strfind(body, "/equipslot")
             if tmpIdx ~= nil then
                 body = strsub(body, 1, tmpIdx - 1)
                 EditMacro(macroIndex, macroName, iconTexture, body .. macro_text, 1, 1)
             else
-                print("Sorry, unable to update macro:", macroName)
+                print(format("Sorry, unable to update macro '%s' (maybe deleting it will solve the issue)", macroName))
             end            
         end
     end
-
-    print(format("Gear set '%s' has been saved", gearId))
 end
+
 
 -- Delete function
 
@@ -111,6 +129,7 @@ function ClassicGearSet.DeleteGear(gearId)
         print(format("Gear set '%s' has been deleted", gearId))
     end    
 end
+
 
 -- Load function
 function ClassicGearSet.LoadGear(gearId)
