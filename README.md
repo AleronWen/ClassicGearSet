@@ -10,6 +10,7 @@ A World of Warcraft Classic addon to manage your character's gear.
   - [x] check that there is room in bags prior to unequip
 - [x] Having SlashCmdList to load/save/list gears
   - for example ``/cgs load gearname`` to load the gear set named ``gearname``
+- [x] Automatic weapon swap macro creation/update on saving gearset
 
 ## Roadmap
 

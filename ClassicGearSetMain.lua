@@ -3,6 +3,7 @@ ClassicGearSet = {}
 CGS_DataBase = {}
 CGS_DataBase.Gears = {}
 CGS_DataBase.GearsCount = 0
+CGS_DataBase.EnableMacro = false
 
 -- Constants
 INVENTORY_SLOT_NAME = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot", "AmmoSlot" }
@@ -76,6 +77,28 @@ function ClassicGearSet.SaveGear(gearId)
         CGS_DataBase.GearsCount = CGS_DataBase.GearsCount + 1
     end
     CGS_DataBase.Gears[gearId] = ClassicGearSet.ListCurrentGear()
+
+    local macroName = gearId .. "_cgs"
+    if CGS_DataBase.EnableMacro == true then
+        local macroIndex = GetMacroIndexByName(macroName)
+        local macroHeader = "#showtooltip\n"
+        local macro_text = format("/equipslot 16 %s\n/equipslot 17 %s", CGS_DataBase.Gears[gearId]["MainHandSlot"], CGS_DataBase.Gears[gearId]["SecondaryHandSlot"])
+        if macroIndex == 0 then
+            -- create macro
+            CreateMacro(macroName, "INV_MISC_QUESTIONMARK", macroHeader .. macro_text, 1);
+        else
+            -- update macro
+            local _, iconTexture, body, isLocal = GetMacroInfo(macroName);
+            local tmpIdx, _ = strfind(body, "/equip")
+            if tmpIdx ~= nil then
+                body = strsub(body, 1, tmpIdx - 1)
+                EditMacro(macroIndex, macroName, iconTexture, body .. macro_text, 1, 1)
+            else
+                print("Sorry, unable to update macro:", macroName)
+            end            
+        end
+    end
+
     print(format("Gear set '%s' has been saved", gearId))
 end
 
@@ -133,6 +156,17 @@ function ClassicGearSet.LoadGear(gearId)
     end
 end
 
+
+-- Macro handling
+function ClassicGearSet.MacroHandling(arg)
+    if arg == "true" then
+        CGS_DataBase.EnableMacro = true
+    else
+        CGS_DataBase.EnableMacro = false
+    end
+end
+
+
 -- SlashCmdList
 function ClassicGearSet.PrintHelp()
     print("ClassicGearSet Usage:")
@@ -141,6 +175,7 @@ function ClassicGearSet.PrintHelp()
     print("/cgs load <gear name> - Load the gear set (the gear name may contain spaces)")
     print("/cgs save <gear name> - Save the gear set (the gear name may contain spaces)")
     print("/cgs delete <gear name> - Delete the gear set (the gear name may contain spaces)")
+    print("/cgs macro <true|false> - enable or disable creation/update of weaponswap macro on save (the macro is NEVER deleted automatically)")
     print("/cgs list - List the saved gear sets")
 end
 
@@ -162,7 +197,9 @@ SlashCmdList['CLASSICGEARSET'] = function(msg)
         elseif tblCount == 2 and tbl[1] == "save" then
             ClassicGearSet.SaveGear(tbl[2])            
         elseif tblCount == 2 and tbl[1] == "delete" then
-            ClassicGearSet.DeleteGear(tbl[2])           
+            ClassicGearSet.DeleteGear(tbl[2])         
+        elseif tblCount == 2 and tbl[1] == "macro" then
+            ClassicGearSet.MacroHandling(tbl[2])
         else
             ClassicGearSet.PrintHelp()
         end
