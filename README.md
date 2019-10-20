@@ -56,7 +56,7 @@ When automatic update modify the macro it searches for the first `/equipslot` oc
 
 - v1.0.0: Command line addon
 - v1.0.1: bug fix
-- v1.1.0 beta1 **[current]**: add weapon swap macro handling
+- v1.1.0 **[current]**: add weapon swap macro handling
 - v2.0.0: The gear sets are manageable from the character panl
 
 ## Acknowledgments
@@ -66,7 +66,7 @@ So this is not realy a fork as I plan to rewrite all the code but without Equipm
 
 ## Contributors
 
-Miself, Teuz (not my real name of course...) and people from my WoW Classic guild that have tested this thing.
+Miself (Aleron Wen) and people from my WoW Classic guild that have tested this thing.
 
 ## License
 
