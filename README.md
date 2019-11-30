@@ -5,16 +5,20 @@ A World of Warcraft Classic addon to manage your character's gear.
 ## Usage
 
 In the chatbox:
+
 - `/cgs` or `/cgs help` to show the user manual
 - `/cgs list` to list saved gear sets
 - `/cgs macro <true|false>` to enable or disable creation/update of weapon swap macro on save. Note that the macro is never deleted on gear set deletion.
-- `/cgs save <gear name>` to save the gear set (the gear name may contain spaces)
-- `/cgs load <gear name>` to load the gear set
+- `/cgs save <gear name>` to save the gear set (the gear name may contain spaces) and set the saved gear as active
+- `/cgs load <gear name>` to load the gear set and set the saved gear as active
 - `/cgs delete <gear name>` to delete the gear set
+- `/cgs cancel` to revert a save or delete made by mistake
+
+Note: the *save* and *load* commands can be used without a `<gear name>` to save/load the active gear (be careful with this feature)
 
 To avoid typing the ClassicGearSet load command I recommand to create macro for each set.
 
-```
+```text
 /cgs load awesome
 ```
 
@@ -23,7 +27,7 @@ To avoid typing the ClassicGearSet load command I recommand to create macro for 
 When weapon swap macro handling is actived a macro named *\<gear name\>_cgs* is created or updated.
 Example of macro:
 
-```
+```text
 #showtooltip
 /equipslot 16 Black Water Hammer
 /equipslot 17 Honed Stiletto of the Monkey
@@ -31,7 +35,7 @@ Example of macro:
 
 if you play a warrior or a druid you can modify the macro to change your stance like:
 
-```
+```text
 #showtooltip
 /cast Defensive Stance
 /equipslot 16 Black Water Hammer
@@ -39,8 +43,6 @@ if you play a warrior or a druid you can modify the macro to change your stance 
 ```
 
 When automatic update modify the macro it searches for the first `/equipslot` occurence and wipe to only replace the weapons.
-
-
 
 ## Roadmap
 
@@ -52,11 +54,10 @@ When automatic update modify the macro it searches for the first `/equipslot` oc
   - for example `/cgs load gearname` to load the gear set named `gearname`
 - [x] Automatic weapon swap macro creation/update on saving gearset
 
-
-
 - v1.0.0: Command line addon
 - v1.0.1: bug fix
-- v1.1.0 **[current]**: add weapon swap macro handling
+- v1.1.0: add weapon swap macro handling
+- v1.2.0 **[current]**: change data saved from item name to item ID to avoid localization problem, also add a cancel command to revert save/delete command
 - v2.0.0: The gear sets are manageable from the character panl
 
 ## Acknowledgments
