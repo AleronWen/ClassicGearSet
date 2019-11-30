@@ -4,6 +4,7 @@ CGS_DataBase = {}
 CGS_DataBase.Gears = {}
 CGS_DataBase.GearsCount = 0
 CGS_DataBase.EnableMacro = false
+CGS_DataBase.ActiveGear = nil
 
 -- Constants
 MAIN_HAND_SLOT_NAME = "MainHandSlot"
@@ -80,7 +81,7 @@ function ClassicGearSet.SaveGear(gearID)
     if CGS_DataBase.EnableMacro == true then
         SaveWeaponSwapMacro(gearID)
     end
-
+    CGS_DataBase.ActiveGear = gearID
     print(format("Gear set '%s' has been saved", gearID))
 end
 
@@ -112,7 +113,7 @@ function SaveWeaponSwapMacro(gearID)
         local _, iconTexture, body, isLocal = GetMacroInfo(macroName);
         local tmpIdx, _ = strfind(body, "/equipslot")
         if tmpIdx ~= nil then
-            body = strsub(body, 1, tmpIdx - 1)
+            body = strsub(body, 1, tmpIdx - 2)
             EditMacro(macroIndex, macroName, iconTexture, body .. macro_text, 1, 1)
         else
             print(format("Sorry, unable to update macro '%s' (maybe deleting it will solve the issue)", macroName))
@@ -127,6 +128,9 @@ function ClassicGearSet.DeleteGear(gearID)
     if CGS_DataBase.Gears[gearID] ~= nil then
         CGS_DataBase.Gears[gearID] = nil
         CGS_DataBase.GearsCount = CGS_DataBase.GearsCount - 1
+        if CGS_DataBase.ActiveGear == gearID then
+            CGS_DataBase.ActiveGear = nil
+        end
         print(format("Gear set '%s' has been deleted", gearID))
     end
 end
@@ -168,6 +172,8 @@ function ClassicGearSet.LoadGear(gearID)
                         end)
                     end
                 end
+                CGS_DataBase.ActiveGear = gearID
+                print(format("Gear set '%s' has been loaded", gearID))
             else
                 print(format("Not enough space in bags to equip selected gear (Required: %d, Free slots in bag: %d)", requiredFreeSlots, freeSlots))
             end
@@ -204,24 +210,43 @@ SlashCmdList['CLASSICGEARSET'] = function(msg)
     local tbl = { strsplit(" ", msg, 2) }
     local tblCount = ClassicGearSet.Tablelength(tbl)
 
-    if tblCount == 0 then
-        ClassicGearSet.PrintHelp()
-    else
-        if tbl[1] == "help" then
-            ClassicGearSet.PrintHelp()
-        elseif tbl[1] == "list" then
+    local showHelp = true
+
+    if tblCount > 0 then
+        if tbl[1] == "list" then
+            showHelp = false
             ClassicGearSet.ListGears()
-        elseif tblCount == 2 and tbl[1] == "load" then
-            ClassicGearSet.LoadGear(tbl[2])
-        elseif tblCount == 2 and tbl[1] == "save" then
-            ClassicGearSet.SaveGear(tbl[2])
-        elseif tblCount == 2 and tbl[1] == "delete" then
-            ClassicGearSet.DeleteGear(tbl[2])
-        elseif tblCount == 2 and tbl[1] == "macro" then
-            ClassicGearSet.MacroHandling(tbl[2])
-        else
-            ClassicGearSet.PrintHelp()
+        elseif tbl[1] == "load" then
+            if tblCount == 2 then
+                showHelp = false
+                ClassicGearSet.LoadGear(tbl[2])
+            elseif CGS_DataBase.ActiveGear ~= nil then
+                showHelp = false
+                ClassicGearSet.LoadGear(CGS_DataBase.ActiveGear)
+            end
+        elseif tbl[1] == "save" then
+            if tblCount == 2 then
+                showHelp = false
+                ClassicGearSet.SaveGear(tbl[2])
+            elseif CGS_DataBase.ActiveGear ~= nil then
+                showHelp = false
+                ClassicGearSet.SaveGear(CGS_DataBase.ActiveGear)
+            end
+        elseif tbl[1] == "delete" then
+            if tblCount == 2 then
+                showHelp = false
+                ClassicGearSet.DeleteGear(tbl[2])
+            end
+        elseif tbl[1] == "macro" then
+            if tblCount == 2 then
+                showHelp = false
+                ClassicGearSet.MacroHandling(tbl[2])
+            end
         end
+    end
+
+    if showHelp == true then
+        ClassicGearSet.PrintHelp()
     end
 end
 SLASH_CLASSICGEARSET1 = '/classicgearset'
