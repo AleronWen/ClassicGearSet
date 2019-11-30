@@ -1,9 +1,9 @@
 ## Interface: 11302
 ## Title: ClassicGearSet
 ## Notes: Character's gears management
-## Author: Teuz
-## Version: 1.1.0-beta1
-## DefaultState: disabled
+## Author: Aleron Wen
+## Version: 1.2.0
+## DefaultState: enabled
 ## SavedVariablesPerCharacter: CGS_DataBase
 
 ClassicGearSetMain.lua
