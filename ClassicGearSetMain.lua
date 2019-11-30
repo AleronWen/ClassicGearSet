@@ -6,7 +6,9 @@ CGS_DataBase.GearsCount = 0
 CGS_DataBase.EnableMacro = false
 
 -- Constants
-INVENTORY_SLOT_NAME = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "RangedSlot", "AmmoSlot" }
+MAIN_HAND_SLOT_NAME = "MainHandSlot"
+OFF_HAND_SLOT_NAME = "SecondaryHandSlot"
+INVENTORY_SLOT_NAME = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", MAIN_HAND_SLOT_NAME, OFF_HAND_SLOT_NAME, "RangedSlot", "AmmoSlot" }
 EMPTY_ITEM_SLOT = "GCS_EMPTY_SLOT"
 
 -- Utility functions
@@ -20,11 +22,11 @@ function ClassicGearSet.ListCurrentGear()
     local currentGear = {}
     for _,v in ipairs(INVENTORY_SLOT_NAME) do
         local slotID = GetInventorySlotInfo(v)
-        local itemLink = GetInventoryItemLink("player", slotID)
-        if itemLink == nil then 
+        local itemID = GetInventoryItemID("player", slotID)
+        if itemID == nil then
             currentGear[v] = EMPTY_ITEM_SLOT
         else
-            currentGear[v], _ = GetItemInfo(itemLink)
+            currentGear[v] = itemID
         end
     end
     return currentGear
@@ -42,7 +44,7 @@ end
 function ClassicGearSet.CountRequiredFreeBagSlots(currentGear, candidateGear)
     local requiredFreeBagSlots = 0
     -- currentGear[v] == candidateGear[v] ==> +0
-    -- currentGear[v] == EMPTY_ITEM_SLOT ==> +0    
+    -- currentGear[v] == EMPTY_ITEM_SLOT ==> +0
     -- candidateGear[v] == EMPTY_ITEM_SLOT ==> +1
     -- candidateGear[v] != EMPTY_ITEM_SLOT ==> +0 (item swap or more free bag after equip)
     for _,v in ipairs(INVENTORY_SLOT_NAME) do
@@ -51,11 +53,6 @@ function ClassicGearSet.CountRequiredFreeBagSlots(currentGear, candidateGear)
         end
     end
     return requiredFreeBagSlots
-end
-
-
--- Test function
-function ClassicGearSet.Test()
 end
 
 
@@ -80,41 +77,45 @@ function ClassicGearSet.SaveGear(gearID)
     end
     CGS_DataBase.Gears[gearID] = ClassicGearSet.ListCurrentGear()
 
-    SaveWeaponSwapMacro(gearID)
+    if CGS_DataBase.EnableMacro == true then
+        SaveWeaponSwapMacro(gearID)
+    end
 
     print(format("Gear set '%s' has been saved", gearID))
 end
 
 function SaveWeaponSwapMacro(gearID)
-    local mainhand = CGS_DataBase.Gears[gearID]["MainHandSlot"]        
-    local offhand = CGS_DataBase.Gears[gearID]["SecondaryHandSlot"]
+    local mainhand = CGS_DataBase.Gears[gearID][MAIN_HAND_SLOT_NAME]
+    local mainhandSlotID = GetInventorySlotInfo(MAIN_HAND_SLOT_NAME)
+    local offhand = CGS_DataBase.Gears[gearID][OFF_HAND_SLOT_NAME]
+    local offhandSlotID = GetInventorySlotInfo(OFF_HAND_SLOT_NAME)
     local macroName = gearID .. "_cgs"
-    
-    if CGS_DataBase.EnableMacro == true then
-        local macroIndex = GetMacroIndexByName(macroName)
-        local macroHeader = "#showtooltip"
-        local macro_text = ""
-        
-        if mainhand ~= EMPTY_ITEM_SLOT then
-            macro_text = macro_text .. format("\n/equipslot 16 %s", mainhand)
-        end
-        if offhand ~= EMPTY_ITEM_SLOT then
-            macro_text = macro_text .. format("\n/equipslot 17 %s", offhand)
-        end
 
-        if macroIndex == 0 then
-            -- create macro
-            CreateMacro(macroName, "INV_MISC_QUESTIONMARK", macroHeader .. macro_text, 1);
+    local macroIndex = GetMacroIndexByName(macroName)
+    local macroHeader = "#showtooltip"
+    local macro_text = ""
+
+    if mainhand ~= EMPTY_ITEM_SLOT then
+        mainhand = GetItemInfo(mainhand)
+        macro_text = macro_text .. format("\n/equipslot 16 %s", mainhand)
+    end
+    if offhand ~= EMPTY_ITEM_SLOT then
+        offhand = GetItemInfo(offhand)
+        macro_text = macro_text .. format("\n/equipslot 17 %s", offhand)
+    end
+
+    if macroIndex == 0 then
+        -- create macro
+        CreateMacro(macroName, "INV_MISC_QUESTIONMARK", macroHeader .. macro_text, 1);
+    else
+        -- update macro
+        local _, iconTexture, body, isLocal = GetMacroInfo(macroName);
+        local tmpIdx, _ = strfind(body, "/equipslot")
+        if tmpIdx ~= nil then
+            body = strsub(body, 1, tmpIdx - 1)
+            EditMacro(macroIndex, macroName, iconTexture, body .. macro_text, 1, 1)
         else
-            -- update macro
-            local _, iconTexture, body, isLocal = GetMacroInfo(macroName);
-            local tmpIdx, _ = strfind(body, "/equipslot")
-            if tmpIdx ~= nil then
-                body = strsub(body, 1, tmpIdx - 1)
-                EditMacro(macroIndex, macroName, iconTexture, body .. macro_text, 1, 1)
-            else
-                print(format("Sorry, unable to update macro '%s' (maybe deleting it will solve the issue)", macroName))
-            end            
+            print(format("Sorry, unable to update macro '%s' (maybe deleting it will solve the issue)", macroName))
         end
     end
 end
@@ -127,7 +128,7 @@ function ClassicGearSet.DeleteGear(gearID)
         CGS_DataBase.Gears[gearID] = nil
         CGS_DataBase.GearsCount = CGS_DataBase.GearsCount - 1
         print(format("Gear set '%s' has been deleted", gearID))
-    end    
+    end
 end
 
 
@@ -143,9 +144,10 @@ function ClassicGearSet.LoadGear(gearID)
 
             if requiredFreeSlots <= freeSlots then
                 for k,v in pairs(CGS_DataBase.Gears[gearID]) do
-                    if v ~= EMPTY_ITEM_SLOT then                
-                        if (currentGear[k] ~= v) then    
-                            EquipItemByName(v)
+                    if v ~= EMPTY_ITEM_SLOT then
+                        if (currentGear[k] ~= v) then
+                            local SlotID = GetInventorySlotInfo(k)
+                            EquipItemByName(v, SlotID)
                         end
                     else
                         C_Timer.After(0.3, function()
@@ -208,15 +210,13 @@ SlashCmdList['CLASSICGEARSET'] = function(msg)
         if tbl[1] == "help" then
             ClassicGearSet.PrintHelp()
         elseif tbl[1] == "list" then
-            ClassicGearSet.ListGears() 
---        elseif tbl[1] == "test" then
---            ClassicGearSet.Test()             
+            ClassicGearSet.ListGears()
         elseif tblCount == 2 and tbl[1] == "load" then
-            ClassicGearSet.LoadGear(tbl[2])            
+            ClassicGearSet.LoadGear(tbl[2])
         elseif tblCount == 2 and tbl[1] == "save" then
-            ClassicGearSet.SaveGear(tbl[2])            
+            ClassicGearSet.SaveGear(tbl[2])
         elseif tblCount == 2 and tbl[1] == "delete" then
-            ClassicGearSet.DeleteGear(tbl[2])         
+            ClassicGearSet.DeleteGear(tbl[2])
         elseif tblCount == 2 and tbl[1] == "macro" then
             ClassicGearSet.MacroHandling(tbl[2])
         else
