@@ -12,6 +12,11 @@ OFF_HAND_SLOT_NAME = "SecondaryHandSlot"
 INVENTORY_SLOT_NAME = { "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot", "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot", "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot", "Trinket1Slot", MAIN_HAND_SLOT_NAME, OFF_HAND_SLOT_NAME, "RangedSlot", "AmmoSlot" }
 EMPTY_ITEM_SLOT = "GCS_EMPTY_SLOT"
 
+-- Volatile memory
+CGS_Volatile_DataBase = {}
+CGS_Volatile_DataBase.gearID = nil
+CGS_Volatile_DataBase.Gear = nil
+
 -- Utility functions
 function ClassicGearSet.Tablelength(T)
     local count = 0
@@ -71,18 +76,24 @@ end
 
 
 -- Save function
-
 function ClassicGearSet.SaveGear(gearID)
+    ClassicGearSet.SaveGearAux(gearID,  ClassicGearSet.ListCurrentGear(), false)
+    print(format("Gear set '%s' has been saved", gearID))
+end
+
+function ClassicGearSet.SaveGearAux(gearID, gearToSave, isCancel)
     if CGS_DataBase.Gears[gearID] == nil then
         CGS_DataBase.GearsCount = CGS_DataBase.GearsCount + 1
+    elseif isCancel == false then
+        ClassicGearSet.CopyGearInVolatileDatabase(gearID)
     end
-    CGS_DataBase.Gears[gearID] = ClassicGearSet.ListCurrentGear()
+
+    CGS_DataBase.Gears[gearID] = gearToSave
 
     if CGS_DataBase.EnableMacro == true then
         SaveWeaponSwapMacro(gearID)
     end
     CGS_DataBase.ActiveGear = gearID
-    print(format("Gear set '%s' has been saved", gearID))
 end
 
 function SaveWeaponSwapMacro(gearID)
@@ -123,9 +134,9 @@ end
 
 
 -- Delete function
-
 function ClassicGearSet.DeleteGear(gearID)
     if CGS_DataBase.Gears[gearID] ~= nil then
+        ClassicGearSet.CopyGearInVolatileDatabase(gearID)
         CGS_DataBase.Gears[gearID] = nil
         CGS_DataBase.GearsCount = CGS_DataBase.GearsCount - 1
         if CGS_DataBase.ActiveGear == gearID then
@@ -193,6 +204,22 @@ function ClassicGearSet.MacroHandling(arg)
     end
 end
 
+-- Cancel handling
+function ClassicGearSet.CopyGearInVolatileDatabase(gearID)
+    if CGS_DataBase.Gears[gearID] ~= nil then
+        CGS_Volatile_DataBase.gearID = gearID
+        CGS_Volatile_DataBase.Gear = CGS_DataBase.Gears[gearID]
+    end
+end
+
+function ClassicGearSet.CancelSaveOrDelete()
+    ClassicGearSet.SaveGearAux(CGS_Volatile_DataBase.gearID, CGS_Volatile_DataBase.Gear, true)
+    print(format("Gear set '%s' has been restored", CGS_Volatile_DataBase.gearID))
+    CGS_Volatile_DataBase.gearID = nil
+    CGS_Volatile_DataBase.Gear = nil
+end
+
+
 
 -- SlashCmdList
 function ClassicGearSet.PrintHelp()
@@ -242,6 +269,9 @@ SlashCmdList['CLASSICGEARSET'] = function(msg)
                 showHelp = false
                 ClassicGearSet.MacroHandling(tbl[2])
             end
+        elseif tbl[1] == "cancel" then
+            showHelp = false
+            ClassicGearSet.CancelSaveOrDelete()
         end
     end
 
