@@ -1,8 +1,8 @@
-## Interface: 11302
+## Interface: 11303
 ## Title: ClassicGearSet
 ## Notes: Character's gears management
 ## Author: Aleron Wen
-## Version: 1.2.0
+## Version: 1.2.1
 ## DefaultState: enabled
 ## SavedVariablesPerCharacter: CGS_DataBase
 

@@ -57,8 +57,9 @@ When automatic update modify the macro it searches for the first `/equipslot` oc
 - v1.0.0: Command line addon
 - v1.0.1: bug fix
 - v1.1.0: add weapon swap macro handling
-- v1.2.0 **[current]**: change data saved from item name to item ID to avoid localization problem, also add a cancel command to revert save/delete command
-- v2.0.0: The gear sets are manageable from the character panl
+- v1.2.0: change data saved from item name to item ID to avoid localization problem, also add a cancel command to revert save/delete command
+- v1.2.1 **[current]**: minor fix for WoW Classic v1.13.3
+- v2.0.0: The gear sets are manageable from the character panel
 
 ## Acknowledgments
 
