@@ -60,8 +60,9 @@ When automatic update modify the macro it searches for the first `/equipslot` oc
 - v1.2.0: change data saved from item name to item ID to avoid localization problem, also add a cancel command to revert save/delete command
 - v1.2.1: minor fix for WoW Classic v1.13.3
 - v1.2.2 : minor fix for WoW Classic v1.13.4
-- v1.2.3 **[current]**: minor fix for WoW Classic v1.13.5
-- v2.0.0: The gear sets are manageable from the character panel
+- v1.2.3: minor fix for WoW Classic v1.13.5
+- v1.2.4 **[current]**: minor fix for WoW Classic v1.13.6
+- *maybe one day* v2.0.0: The gear sets are manageable from the character panel
 
 ## Acknowledgments
 
